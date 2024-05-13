@@ -1706,6 +1706,48 @@
       label5.element.classList.remove("hidden");
     }
   });
+    // <Interaction>
+  let pointer6 = new THREE.Vector2();
+  let raycaster6 = new THREE.Raycaster();
+  let intersections6;
+  let divID6 = document.getElementById("idNum6");
+  let divMag6 = document.getElementById("magnitude");
+  let divCrd6 = document.getElementById("coordinates");
+  window.addEventListener("pointerdown", (event) => {
+    pointer6.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer6.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster6.setFromCamera(pointer6, camera);
+    intersections6 = raycaster6.intersectObject(markers6).filter((m) => {
+      return m.uv.subScalar(0.5).length() * 2 < 0.25; // check, if we're in the central circle only
+    });
+    //console.log(intersections);
+    if (intersections6.length > 0) {
+      let iid6 = intersections6[0].instanceId;
+      let mi6 = markerInfo6[iid6];
+      divID6.innerHTML = `<iframe frameborder="0" scrolling="yes"allowfullscreen="true" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox" loading="eager" src="https://rss.app/embed/v1/wall/tzqMXIvH6x1HU4n7"></iframe>
+            <link rel="stylesheet" href="style.css"> <!--Copy this line of code-->
+           `;
+      /*divMag.innerHTML = `Mag: <b>${mi.mag}</b>`;
+      divCrd.innerHTML = `X: <b>${mi.crd.x.toFixed(2)}</b>; Y: <b>${mi.crd.y.toFixed(2)}</b>; Z: <b>${mi.crd.z.toFixed(2)}</b>`;*/
+      label.position.copy(mi.crd);
+      label.element.animate(
+        [
+          {
+            width: "0px",
+            height: "0px" /*marginTop: "0px", marginLeft: "0px"*/,
+          },
+          {
+            width: "142px",
+            height: "186px" /*marginTop: "-25px", marginLeft: "120px*/,
+          },
+        ],
+        {
+          duration: 250,
+        }
+      );
+      label.element.classList.remove("hidden");
+    }
+  });
   //<Interaction>
   let pointer9 = new THREE.Vector2();
   let raycaster9 = new THREE.Raycaster();
@@ -1724,7 +1766,7 @@
     if (intersections9.length > 0) {
       let iid9 = intersections9[0].instanceId;
       let mi9 = markerInfo9[iid9];
-      divID9.innerHTML = `<iframe frameborder="0" scrolling="yes"allowfullscreen="true" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox" loading="eager" src="https://rss.app/embed/v1/wall/t4ENm3DKaD2UbFhT"></iframe>
+      divID9.innerHTML = `<iframe frameborder="0" scrolling="yes"allowfullscreen="true" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox" loading="eager" src="https://rss.app/embed/v1/wall/tLf3bubNvBFvw78r"></iframe>
             <link rel="stylesheet" href="style.css"> <!--Copy this line of code-->
            `;
       /*divMag.innerHTML = `Mag: <b>${mi.mag}</b>`;
