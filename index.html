@@ -2109,7 +2109,7 @@
   window.addEventListener("pointerdown", (event) => {
     pointer7.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer7.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster7.-setFromCamera(pointer3, camera);
+    raycaster7.setFromCamera(pointer3, camera);
     intersections7 = raycaster7.intersectObject(markers7).filter((m) => {
       return m.uv.subScalar(0.5).length() * 2 < 0.25; // check, if we're in the central circle only
     });
