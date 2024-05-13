@@ -1286,6 +1286,86 @@
 
   scene.add(markers8);
    // </Markers>
+    // <Markers>
+  const markerCount7 = 1;
+  let markerInfo7 = []; // information on markers
+  let gMarker7 = new THREE.PlaneGeometry();
+  let mMarker7 = new THREE.MeshBasicMaterial({
+    color: 0xff3232,
+    onBeforeCompile: (shader) => {
+      shader.uniforms.time = globalUniforms.time;
+      shader.vertexShader = `
+      	attribute float phase;
+        varying float vPhase;
+        ${shader.vertexShader}
+      `.replace(
+        `#include <begin_vertex>`,
+        `#include <begin_vertex>
+        	vPhase = phase; // de-synch of ripples
+        `
+      );
+      //console.log(shader.vertexShader);
+      shader.fragmentShader = `
+      	uniform float time;
+        varying float vPhase;
+      	${shader.fragmentShader}
+      `.replace(
+        `vec4 diffuseColor = vec4( diffuse, opacity );`,
+        `
+        vec2 lUv = (vUv - 0.5) * 2.;
+        float val = 0.;
+        float lenUv = length(lUv);
+        val = max(val, 1. - step(0.25, lenUv)); // central circle
+        val = max(val, step(0.4, lenUv) - step(0.5, lenUv)); // outer circle
+
+        float tShift = fract(time * 0.5 + vPhase);
+        val = max(val, step(0.4 + (tShift * 0.6), lenUv) - step(0.5 + (tShift * 0.5), lenUv)); // ripple
+
+        if (val < 0.5) discard;
+
+        vec4 diffuseColor = vec4( diffuse, opacity );`
+      );
+      //console.log(shader.fragmentShader)
+    },
+  });
+  mMarker7.defines = { USE_UV: " " }; // needed to be set to be able to work with UVs
+  let markers7 = new THREE.InstancedMesh(gMarker7, mMarker7, markerCount7);
+
+  let dummy7 = new THREE.Object3D();
+  let phase7 = [];
+
+  for (let i7 = 0; i7 < markerCount7; i7++) {
+    dummy7.position.setFromSphericalCoords(5.1, 0.9, 0);
+    //dummy.position.randomDirection().setLength(rad + 0.1);
+    dummy7.lookAt(dummy7.position.clone().setLength(5.1 + 1));
+    dummy7.updateMatrix();
+    markers7.setMatrixAt(i7, dummy7.matrix);
+    phase7.push(Math.random());
+
+    markerInfo7.push({
+      id7: i7 + 1,
+      mag7: THREE.MathUtils.randInt(1, 10),
+      crd7: dummy7.position.clone(),
+    });
+  }
+  /*function placeObjectOnPlanet(dummy, 41, -20, 5) {
+      var latRad = 41 * (Math.PI / 180);
+      var lonRad = -20 * (Math.PI / 180);
+      dummy.position.set(
+          Math.cos(latRad) * Math.cos(lonRad) * radius,
+          Math.sin(latRad) * radius,
+          Math.cos(latRad) * Math.sin(lonRad) * radius
+      );
+      object.rotation.set(0.0, -lonRad, latRad - Math.PI * 0.5);
+  }*/
+  gMarker7.setAttribute(
+    "phase7",
+    new THREE.InstancedBufferAttribute(new Float32Array(phase7), 1)
+  );
+
+  scene.add(markers7);
+  // </Markers>
+  // <Markers>
   // <Markers>
   const markerCount9 = 1;
   let markerInfo9 = []; // information on markers
@@ -1953,6 +2033,48 @@
         }
       );
       label8.element.classList.remove("hidden");
+    }
+  });
+    // <Interaction>
+  let pointer7 = new THREE.Vector2();
+  let raycaster7 = new THREE.Raycaster();
+  let intersections7;
+  let divID7 = document.getElementById("idNum7");
+  let divMag7 = document.getElementById("magnitude");
+  let divCrd7 = document.getElementById("coordinates");
+  window.addEventListener("pointerdown", (event) => {
+    pointer7.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer7.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster7.-setFromCamera(pointer3, camera);
+    intersections7 = raycaster7.intersectObject(markers7).filter((m) => {
+      return m.uv.subScalar(0.5).length() * 2 < 0.25; // check, if we're in the central circle only
+    });
+    //console.log(intersections);
+    if (intersections7.length > 0) {
+      let iid7 = intersections7[0].instanceId;
+      let mi7 = markerInfo7[iid7];
+      divID7.innerHTML = `<iframe frameborder="0" scrolling="yes"allowfullscreen="true" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox" loading="eager" src="https://rss.app/embed/v1/wall/tX9piUBYg3CbbVYd"></iframe>
+            <link rel="stylesheet" href="style.css"> <!--Copy this line of code-->
+           `;
+      /*divMag.innerHTML = `Mag: <b>${mi.mag}</b>`;
+      divCrd.innerHTML = `X: <b>${mi.crd.x.toFixed(2)}</b>; Y: <b>${mi.crd.y.toFixed(2)}</b>; Z: <b>${mi.crd.z.toFixed(2)}</b>`;*/
+      label7.position.copy(mi7.crd7);
+      label7.element.animate(
+        [
+          {
+            width: "0px",
+            height: "0px" /*marginTop: "0px", marginLeft: "0px"*/,
+          },
+          {
+            width: "142px",
+            height: "186px" /*marginTop: "-25px", marginLeft: "120px*/,
+          },
+        ],
+        {
+          duration: 250,
+        }
+      );
+      label7.element.classList.remove("hidden");
     }
   });
   //<Interaction>
