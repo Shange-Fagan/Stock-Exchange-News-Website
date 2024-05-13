@@ -1705,6 +1705,45 @@
   scene.add(label8);
   // </Label>
     // <Label>
+  let labelDiv7 = document.getElementById("markerLabel7");
+  let closeBtn7 = document.getElementById("closeButton7");
+  closeBtn7.addEventListener("pointerdown", (event) => {
+    labelDiv7.classList.add("hidden");
+  });
+  let label7 = new CSS2DObject(labelDiv7);
+  label7.userData = {
+    cNormal3: new THREE.Vector3(),
+    cPosition3: new THREE.Vector3(),
+    mat43: new THREE.Matrix4(),
+    trackVisibility3: () => {
+      // the closer to the edge, the less opacity
+      let ud3 = label7.userData;
+      ud3.cNormal3
+        .copy(label7.position)
+        .normalize()
+        .applyMatrix3(globe.normalMatrix);
+      ud3.cPosition3
+        .copy(label7.position)
+        .applyMatrix4(
+          ud3.mat43.multiplyMatrices(
+            camera.matrixWorldInverse,
+            globe.matrixWorld
+          )
+        );
+      let d3 = ud3.cPosition3.negate().normalize().dot(ud3.cNormal3);
+      d3 = smoothstep3(0.2, 0.7, d3);
+      label7.element.style.opacity = d3;
+
+      // https://github.com/gre/smoothstep/blob/master/index.js
+      function smoothstep3(min3, max3, value3) {
+        var x3 = Math.max(0, Math.min(1, (value3 - min3) / (max3 - min3)));
+        return x3 * x3 * (3 - 2 * x3);
+      }
+    },
+  };
+  scene.add(label7);
+  // </Label>
+    // <Label>
   let labelDiv9 = document.getElementById("markerLabel9");
   let closeBtn9 = document.getElementById("closeButton9");
   closeBtn9.addEventListener("pointerdown", (event) => {
