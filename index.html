@@ -1077,6 +1077,86 @@
 
   scene.add(markers5);
   // </Markers>
+
+    // <Markers>
+  const markerCount6 = 1;
+  let markerInfo6 = []; // information on markers
+  let gMarker6 = new THREE.PlaneGeometry();
+  let mMarker6 = new THREE.MeshBasicMaterial({
+    color: 0xff3232,
+    onBeforeCompile: (shader) => {
+      shader.uniforms.time = globalUniforms.time;
+      shader.vertexShader = `
+      	attribute float phase;
+        varying float vPhase;
+        ${shader.vertexShader}
+      `.replace(
+        `#include <begin_vertex>`,
+        `#include <begin_vertex>
+        	vPhase = phase; // de-synch of ripples
+        `
+      );
+      //console.log(shader.vertexShader);
+      shader.fragmentShader = `
+      	uniform float time;
+        varying float vPhase;
+      	${shader.fragmentShader}
+      `.replace(
+        `vec4 diffuseColor = vec4( diffuse, opacity );`,
+        `
+        vec2 lUv = (vUv - 0.5) * 2.;
+        float val = 0.;
+        float lenUv = length(lUv);
+        val = max(val, 1. - step(0.25, lenUv)); // central circle
+        val = max(val, step(0.4, lenUv) - step(0.5, lenUv)); // outer circle
+
+        float tShift = fract(time * 0.5 + vPhase);
+        val = max(val, step(0.4 + (tShift * 0.6), lenUv) - step(0.5 + (tShift * 0.5), lenUv)); // ripple
+
+        if (val < 0.5) discard;
+
+        vec4 diffuseColor = vec4( diffuse, opacity );`
+      );
+      //console.log(shader.fragmentShader)
+    },
+  });
+  mMarker6.defines = { USE_UV: " " }; // needed to be set to be able to work with UVs
+  let markers6 = new THREE.InstancedMesh(gMarker6, mMarker6, markerCount6);
+
+  let dummy6 = new THREE.Object3D();
+  let phase6 = [];
+
+  for (let i6 = 0; i6 < markerCount; i6++) {
+    dummy.position.setFromSphericalCoords(5.1, 1.2, 1.5);
+    //dummy.position.randomDirection().setLength(rad + 0.1);
+    dummy.lookAt(dummy.position.clone().setLength(5.1 + 1));
+    dummy.updateMatrix();
+    markers6.setMatrixAt(i, dummy.matrix);
+    phase.push(Math.random());
+
+    markerInfo6.push({
+      id6: i6 + 1,
+      mag6: THREE.MathUtils.randInt(1, 10),
+      crd6: dummy6.position.clone(),
+    });
+  }
+  /*function placeObjectOnPlanet(dummy, 41, -20, 5) {
+      var latRad = 41 * (Math.PI / 180);
+      var lonRad = -20 * (Math.PI / 180);
+      dummy.position.set(
+          Math.cos(latRad) * Math.cos(lonRad) * radius,
+          Math.sin(latRad) * radius,
+          Math.cos(latRad) * Math.sin(lonRad) * radius
+      );
+      object.rotation.set(0.0, -lonRad, latRad - Math.PI * 0.5);
+  }*/
+  gMarker6.setAttribute(
+    "phase6",
+    new THREE.InstancedBufferAttribute(new Float32Array(phase6), 1)
+  );
+
+  scene.add(markers6);
+  // </Markers>
   // <Markers>
   const markerCount9 = 1;
   let markerInfo9 = []; // information on markers
